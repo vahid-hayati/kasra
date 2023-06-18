@@ -15,7 +15,7 @@ public class LgMobileController : ControllerBase
     public LgMobileController(IMongoClient client, IMongoDbSettings dbSettings)
     {
         var dbName = client.GetDatabase(dbSettings.DatabaseName);
-        _collection = dbName.GetCollection<BuyPhone>("lg-phone");
+        _collection = dbName.GetCollection<BuyPhone>("lg-phones");
     }
 
     [HttpPost("register")]
@@ -23,19 +23,19 @@ public class LgMobileController : ControllerBase
     {
         BuyPhone phone = _collection.Find(phone => phone.PhoneModel == userInput.PhoneModel.Trim()).FirstOrDefault();
 
-        if (phone != null)
+        if (phone is not null)
         {
             return BadRequest("The inventory of this phone model is complete!");
         }
 
-         phone = new BuyPhone(
-            Id: null,
-            PhoneModel: userInput.PhoneModel,
-            Price: userInput.Price,
-            Software: userInput.Software,
-            HasHeadPhones: userInput.HasHeadPhones,
-            Support5G: userInput.Support5G
-        ); 
+        phone = new BuyPhone(
+           Id: null,
+           PhoneModel: userInput.PhoneModel,
+           Price: userInput.Price,
+           Software: userInput.Software,
+           HasHeadPhones: userInput.HasHeadPhones,
+           Support5G: userInput.Support5G
+       );
 
         _collection.InsertOne(phone);
 
@@ -47,7 +47,7 @@ public class LgMobileController : ControllerBase
     {
         BuyPhone phone = _collection.Find(phone => phone.PhoneModel == phoneModel.Trim()).FirstOrDefault();
 
-        if (phoneModel == null)
+        if (phoneModel is null)
         {
             return NotFound("This model is not available!");
         }
@@ -60,7 +60,7 @@ public class LgMobileController : ControllerBase
     {
         List<BuyPhone> phones = _collection.Find<BuyPhone>(new BsonDocument()).ToList();
 
-         if (!phones.Any())
+        if (!phones.Any())
         {
             return Ok("The phone list is empty.");
         }
